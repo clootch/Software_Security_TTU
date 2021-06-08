@@ -3,12 +3,15 @@ import threading
 
 class Object:
     def send():
-        pass
+        print("send")
     def recieve():
-        pass
+        print("recieve")
     def reply():
-        pass
+        print("reply")
 
 
 if __name__ == "__main__":
     sender = threading.Thread()
+    
+    test = Object
+    test.send()
