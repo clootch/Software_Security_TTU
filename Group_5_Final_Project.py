@@ -1,9 +1,20 @@
 import threading
+import sys
 
 class Customer(threading.Thread):
     def __init__(self):
-        pass
+        threading.Thread.__init__(self)
     
+    def run(self):
+        while True:
+            print("----------------------------------")
+            print("What would you like to do?")
+            print("1. Return to menu")
+            print("----------------------------------")
+            choice = input("Enter a number choice here")
+            if choice == "1":
+                return
+
     def log_on(self):
         pass
 
@@ -60,6 +71,28 @@ class Stock_Trading_System(threading.Thread):
     def sell_stock(self):
         pass
 
-
-
-
+if __name__ == "__main__":
+    while True:
+        print("----------------------------------")
+        print("What would you like to do?")
+        print("1. Login as Customer")
+        print("2. login as Bank Teller")
+        print("3. Register Account")
+        print("4. Quit")
+        print("----------------------------------")
+        choice = input("Enter a number choice here: ")
+        if (choice == "1"):
+            print("Customer Login")
+            user = Customer()
+            user.start()
+            
+        
+        elif (choice == "2"):
+            print("Bank Teller Login")
+        elif (choice == "3"):
+            print("Register Account")
+        elif (choice == "4"):
+            print("Closing system...")
+            quit(0)
+        else:
+            print("Incorrect option...")
