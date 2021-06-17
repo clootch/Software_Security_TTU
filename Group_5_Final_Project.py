@@ -16,6 +16,13 @@ class Customer(threading.Thread):
                 return
 
     def log_on(self):
+        # enters id and pass
+        # which are encrypted
+        # checks if id and pass is correct, display message based on whether it was succesful login or not
+        userId = input(str("ID: "))
+        userPass = input(str("Password: "))
+        # probably store customer information on sql
+
         pass
 
     def log_out(self):
