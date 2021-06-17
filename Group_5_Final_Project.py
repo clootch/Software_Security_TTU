@@ -13,7 +13,11 @@ class Customer(threading.Thread):
             print("----------------------------------")
             choice = input("Enter a number choice here")
             if choice == "1":
-                return
+                confirm = self.log_out()
+                if confirm:
+                    return
+                else:
+                    pass
 
     def log_on(self):
         # enters id and pass
@@ -51,17 +55,46 @@ class Bank_Teller(threading.Thread):
         pass
 
     def log_on(self):
-        pass
+        username = input("Enter your username: ")
+        password = input("Enter your password: ")
+        #input logic here to confirm user/pass
+        while True:
+            print("----------------------------------")
+            print(" What would you like to do?")
+            print(" 1. Log Off")
+            print("----------------------------------")
+            choice = input("Enter a number choice here: ")
+            if choice == "1":
+                confirm = self.log_out()
+                if confirm:
+                    return
+            if choice == "2":
+                self.query_account()
+            
 
     def log_out(self):
-        pass
+        choice = input("Are you sure you want to log-off?\nEnter y for yes, anything else for no: ")
+        if choice == 'y':
+            return True
+        else:
+            return False
 
     def query_account(self):
-        pass
+        print()
+        acc_num = input("Enter the account number: ")
+        #input logic here for checking account number
+        if acc_num:
+            print("Account Balance: 1")
+        else:
+            print("Accoun Number Invalid, returning to menu...")
+        print()
 
     def withdraw_funds(self):
-        pass
-
+        print()
+        amount = input("How much would you like to withdrawl: ")
+        
+        print()
+        
     def view_profile(self):
         pass
 
@@ -96,6 +129,8 @@ if __name__ == "__main__":
         
         elif (choice == "2"):
             print("Bank Teller Login")
+            user = Bank_Teller()
+            user.log_on()
         elif (choice == "3"):
             print("Register Account")
         elif (choice == "4"):
