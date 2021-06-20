@@ -81,6 +81,10 @@ class Bank_Teller(threading.Thread):
             print("----------------------------------")
             print(" What would you like to do?")
             print(" 1. Log Off")
+            print(" 2. Query Account")
+            print(" 3. Withdraw Funds")
+            print(" 4. View Profile")
+            print(" 5. Query Stock")
             print("----------------------------------")
             choice = input("Enter a number choice here: ")
             if choice == "1":
@@ -89,6 +93,13 @@ class Bank_Teller(threading.Thread):
                     return
             if choice == "2":
                 self.query_account()
+            if choice == "3":
+                self.withdraw_funds()
+            if choice == "4":
+                self.view_profile()
+            if choice == "5":
+                self.query_stock()
+                
 
     def log_out(self):
         choice = input("Are you sure you want to log-off?\nEnter y for yes, anything else for no: ")
@@ -110,14 +121,22 @@ class Bank_Teller(threading.Thread):
     def withdraw_funds(self):
         print()
         amount = input("How much would you like to withdrawl: ")
+        accnum = input("Which account are you pulling from: ")
+        #Pull customer total funds from the DB. 
+        #if funds >= amount, do good stuff
+        #else, return with apology message. 
 
         print()
 
     def view_profile(self):
-        pass
+        print()
+
+        print()
 
     def query_stock(self):
-        pass
+        print()
+        name = input("What is the customer's name: ")
+        print()
 
 
 class Stock_Trading_System(threading.Thread):
