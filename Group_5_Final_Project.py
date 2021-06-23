@@ -22,7 +22,21 @@ class Customer(threading.Thread):
             print("6. Buy stock")
             print("7. Log off")
             print("----------------------------------")
-            choice = input("Enter a number choice here")
+
+            choice = input("Enter a number choice here: ")
+            if choice == "1":
+                # return to menu
+                pass
+            if choice == "2":
+                self.query_account()
+            if choice == "3":
+                self.transfer_funds()
+            if choice == "4":
+                self.view_profile()
+            if choice == "5":
+                self.query_stock()
+            if choice == "6":
+                self.buy_stock()
             if choice == "7":
                 confirm = self.log_out()
                 if confirm:
@@ -41,22 +55,30 @@ class Customer(threading.Thread):
         userPassCheck = self.cursor.fetchone()
 
         if userPassCheck[0] == passHash:
-            print("Password match")
+            print("Log in successful")
             self.run()
         else:
             print("Username or password does not match")
 
 
     def log_out(self):
-        pass
+        choice = input("Are you sure you want to log-off?\nEnter y for yes, anything else for no: ")
+        if choice == 'y':
+            return True
+        else:
+            return False
 
     def query_account(self):
-        pass
+        print()
+        acc_num = input("Enter the account number: ")
+        # input logic here for checking account number
+
 
     def transfer_funds(self):
         pass
 
     def view_profile(self):
+
         pass
 
     def query_stock(self):
