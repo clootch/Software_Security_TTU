@@ -143,11 +143,14 @@ class Bank_Teller(threading.Thread):
     def query_account(self):
         print()
         acc_num = input("Enter the account number: ")
-        # input logic here for checking account number
-        if acc_num:
-            print("Account Balance: 1")
-        else:
-            print("Accoun Number Invalid, returning to menu...")
+        print(acc_num)
+        cursor.execute("SELECT * FROM users WHERE AccountNumber = ?",acc_num)
+        info = cursor.fetchall()
+        if len(info) == 0:
+            print("That account number was invalid.")
+            return
+        cursor.execute("SELECT * FROM Bank_Account WHERE userId = ?",(info[0][0],))
+        print("Remaining Balance: "+str(cursor.fetchall()[0][1]))
         print()
 
     def withdraw_funds(self):
