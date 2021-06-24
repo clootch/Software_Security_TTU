@@ -157,6 +157,24 @@ class Bank_Teller(threading.Thread):
         print()
         amount = input("How much would you like to withdrawl: ")
         accnum = input("Which account are you pulling from: ")
+        cursor.execute("SELECT * FROM users WHERE AccountNumber = ?",accnum)
+        userInfo = cursor.fetchall()
+        print(userInfo)
+        userInfo = userInfo[0]
+        cursor.execute("SELECT * FROM Bank_Account WHERE userId = ?",userInfo[0])
+        balance = cursor.fetchall()[0][1]
+        if balance >= amount:
+            #good to go
+            balance -= amount
+            a = input("Did you give the customer their cash? Enter Y to continue")
+            if a == "y":
+                cursor.execute("UPDATE Bank_Account SET Balance = ? WHERE userId = ?",(balance,userInfo[0]))
+            else:
+                print("")
+                return
+        else:
+            print("The balance was less than the amount asked.")
+            return
         #Pull customer total funds from the DB. 
         #if funds >= amount, do good stuff
         #else, return with apology message. 
