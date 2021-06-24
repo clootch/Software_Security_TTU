@@ -98,6 +98,16 @@ class Bank_Teller(threading.Thread):
     def log_on(self):
         username = input("Enter your username: ")
         password = input("Enter your password: ")
+        cursor.execute("SELECT * FROM users WHERE userId = ?",(username,))
+        user = cursor.fetchall()
+        try:
+            if user[0][1] != hashlib.sha256(password.encode()).hexdigest():
+                print("Password did not match.")
+                print()
+                return
+        except:
+            print("That username does not exist.")
+            return
         # input logic here to confirm user/pass
         while True:
             print("----------------------------------")
