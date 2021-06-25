@@ -10,7 +10,24 @@ class Customer(threading.Thread):
         self.connection = sqlite3.connect("Customer_Teller_loginInfo.db")
         self.cursor = self.connection.cursor()
 
-    def run(self):
+
+    def log_on(self):
+        # assume user info is already in the data base
+        userId = input(str("ID: "))
+        userPass = input(str("Password: "))
+
+        # grants access if hashed password matches the data base
+        cursor.execute("SELECT * FROM users WHERE userId = ?", (userId,))
+        user = cursor.fetchall()
+        try:
+            if user[0][1] != hashlib.sha256(userPass.encode()).hexdigest():
+                print("Password did not match.")
+                print()
+                return
+        except:
+            print("That username does not exist.")
+            return
+
         while True:
             print("----------------------------------")
             print("What would you like to do?")
@@ -28,15 +45,15 @@ class Customer(threading.Thread):
                 # return to menu
                 pass
             if choice == "2":
-                self.query_account()
+                self.query_account(userId)
             if choice == "3":
-                self.transfer_funds()
+                self.transfer_funds(userId)
             if choice == "4":
-                self.view_profile()
+                self.view_profile(userId)
             if choice == "5":
-                self.query_stock()
+                self.query_stock(userId)
             if choice == "6":
-                self.buy_stock()
+                self.buy_stock(userId)
             if choice == "7":
                 confirm = self.log_out()
                 if confirm:
@@ -44,21 +61,6 @@ class Customer(threading.Thread):
                 else:
                     pass
 
-    def log_on(self):
-        # assume user info is already in the data base
-        userId = input(str("ID: "))
-        userPass = input(str("Password: "))
-        passHash = hashlib.sha256(userPass.encode()).hexdigest()
-
-        # grants access if hashed password matches the data base
-        self.cursor.execute("SELECT userPass FROM users WHERE userId = ?", (userId,))
-        userPassCheck = self.cursor.fetchone()
-
-        if userPassCheck[0] == passHash:
-            print("Log in successful")
-            self.run()
-        else:
-            print("Username or password does not match")
 
 
     def log_out(self):
@@ -68,13 +70,28 @@ class Customer(threading.Thread):
         else:
             return False
 
-    def query_account(self):
+    def query_account(self, userId):
         print()
         acc_num = input("Enter the account number: ")
-        # input logic here for checking account number
+
+        # input logic here for checking account number with user
+        cursor.execute("SELECT * FROM users WHERE AccountNumber = ?", (acc_num,))
+        accInfo = cursor.fetchone()
+
+        if userId == accInfo[0]:
+            print("Valid account number\n")
+            cursor.execute("SELECT * FROM Bank_Account where UserId = ?", (userId,))
+            balanceInfo = cursor.fetchone()
+            print("Your account balance: $", balanceInfo[1])
+        else:
+            print("Invalid account number")
+            return
 
 
-    def transfer_funds(self):
+
+    def transfer_funds(self, userId):
+
+
         pass
 
     def view_profile(self):
@@ -150,7 +167,7 @@ class Bank_Teller(threading.Thread):
             print("That account number was invalid.")
             return
         cursor.execute("SELECT * FROM Bank_Account WHERE userId = ?",(info[0][0],))
-        print("Remaining Balance: "+str(cursor.fetchall()[0][1]))
+        print("Remaining Balance: $"+str(cursor.fetchall()[0][1]))
         print()
 
     def withdraw_funds(self):
@@ -264,7 +281,6 @@ if __name__ == "__main__":
             print("Customer Login")
             user = Customer()
             user.log_on()
-            user.start()
 
 
         elif (choice == "2"):
