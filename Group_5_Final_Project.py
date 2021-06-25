@@ -159,13 +159,16 @@ class Bank_Teller(threading.Thread):
         accnum = input("Which account are you pulling from: ")
         cursor.execute("SELECT * FROM users WHERE AccountNumber = ?",accnum)
         userInfo = cursor.fetchall()
-        print(userInfo)
-        userInfo = userInfo[0]
-        cursor.execute("SELECT * FROM Bank_Account WHERE userId = ?",userInfo[0])
+        try:
+            userInfo = userInfo[0]
+        except:
+            print("Could not find a user with that account number.")
+            return
+        cursor.execute("SELECT * FROM Bank_Account WHERE userId = ?",(userInfo[0],))
         balance = cursor.fetchall()[0][1]
-        if balance >= amount:
+        if balance >= int(amount):
             #good to go
-            balance -= amount
+            balance -= int(amount)
             a = input("Did you give the customer their cash? Enter Y to continue")
             if a == "y":
                 cursor.execute("UPDATE Bank_Account SET Balance = ? WHERE userId = ?",(balance,userInfo[0]))
@@ -175,20 +178,49 @@ class Bank_Teller(threading.Thread):
         else:
             print("The balance was less than the amount asked.")
             return
-        #Pull customer total funds from the DB. 
-        #if funds >= amount, do good stuff
-        #else, return with apology message. 
-
         print()
 
     def view_profile(self):
         print()
-
+        name = input("What is the customer's name: ")
+        ssn = input("What is the customers ssn: ")
+        cursor.execute("SELECT * FROM User_Profile WHERE name = ? AND ssn = ?",(name,ssn))
+        try:
+            stuff = cursor.fetchall()[0]
+        except:
+            print("Could not find a user with those credientals.")
+            return
+        print("""
+UserId: {}
+Name: {}
+SSN: {}
+Address: {}
+Phone Number: {}
+Income: {} 
+Email: {}
+        """.format(stuff[0],stuff[1],stuff[2],stuff[3],stuff[4],stuff[5],stuff[6]))
         print()
 
     def query_stock(self):
         print()
         name = input("What is the customer's name: ")
+        cursor.execute("SELECT * FROM User_Profile WHERE name = ?",(name,))
+        try:
+            userId = cursor.fetchall()[0][0]
+        except:
+            print("User not found.")
+            return
+        cursor.execute("SELECT * FROM Stock_Transactions WHERE userId = ?",(userId,))
+        try:
+            for stuff in cursor.fetchall():
+                print("""
+Stock Name: {}
+Type: {}
+Amount: {}
+Unit Price: {}
+                """.format(stuff[1],stuff[2],stuff[3],stuff[4]))
+        except:
+            print("There are no transactions on this account.")
         print()
 
 
