@@ -2,13 +2,15 @@ import threading
 import sys
 import hashlib
 import sqlite3
-
-
+import hmac
+import rsa
 class Customer(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
         self.connection = sqlite3.connect("Customer_Teller_loginInfo.db")
+        self.pubkey, self.privkey = rsa.newkeys(512)
         self.cursor = self.connection.cursor()
+        self.stock_system = Stock_Trading_System()
 
     def log_on(self):
         # assume user info is already in the data base
@@ -36,7 +38,8 @@ class Customer(threading.Thread):
             print("4. View profile")
             print("5. Query stock")
             print("6. Buy stock")
-            print("7. Log off")
+            print("7. Sell Stock")
+            print("8. Log off")
             print("----------------------------------")
 
             choice = input("Enter a number choice here: ")
@@ -54,6 +57,8 @@ class Customer(threading.Thread):
             if choice == "6":
                 self.buy_stock(userId)
             if choice == "7":
+                self.sell_stock(userId)
+            if choice == "8":
                 confirm = self.log_out()
                 if confirm:
                     return
@@ -148,7 +153,7 @@ class Customer(threading.Thread):
         else:
             pass
 
-    def buy_stock(self, userId, stock_contract, signature):
+    def buy_stock(self, userId):
         cursor.execute("SELECT * FROM Bank_Account WHERE UserId = ?", (userId,))
         bankInfo = cursor.fetchone()
         print("User balance: $", bankInfo[1])
@@ -166,18 +171,39 @@ class Customer(threading.Thread):
             if stock_quantiy > 0 and stock_unit_price > 0:
                 stock_contract = stock_name + "/" + str(stock_quantiy) + "/" + str(stock_unit_price) + "/" + str(acc_num) + "/" + "B"
                 print(stock_contract)
-                # create digital signature of the
-
+                signature = rsa.sign(stock_contract.encode(), self.privkey, 'SHA-256')
+                if self.stock_system.buy_stock(stock_contract,signature,self.pubkey):
+                    self.cursor.execute("INSERT INTO Stock_Transactions (userId,Stock_Name,Type,Amount,Unit_Price) VALUES (?,?,?,?,?)",(userId,stock_name,"BUY",stock_quantiy,stock_unit_price))
+                else:
+                    print("Message Compromised.")
+                    return
             else:
                 print("Error entering purchase order into a contract")
-                quit(0)
+                return
         else:
-            print("Insufficient fund")
-            quit(0)
+            print("Insufficient funds.")
+            return
 
-    def sell_stock(self):
-        pass
-
+    def sell_stock(self,userId):
+        stock_name = str(input("Enter stock name: "))
+        stock_quantiy = int(input("Enter stock quantity: "))
+        stock_unit_price = int(input("Enter stock price: "))
+        acc_num = int(input("Enter account number: "))
+        self.cursor.execute("SELECT * FROM users WHERE AccountNumber = ?",(acc_num,))
+        total_stock_price = stock_quantiy * stock_unit_price
+        if len(self.cursor.fetchall()) == 0:
+            print("Invalid Account Number")
+            return
+        else:
+            stock_contract = stock_name + "/" + str(stock_quantiy) + "/" + str(stock_unit_price) + "/" + str(acc_num) + "/" + "S"
+            signature = rsa.sign(stock_contract.encode(), self.privkey, 'SHA-256')
+            if self.stock_system.sell_stock(stock_contract,signature,self.pubkey):
+                self.cursor.execute("INSERT INTO Stock_Transactions (userId,Stock_Name,Type,Amount,Unit_Price) VALUES (?,?,?,?,?)",(userId,stock_name,"BUY",stock_quantiy,stock_unit_price))
+                
+                print("Stock sold.")
+            else:
+                print("Message Compromised.")
+                return
 
 class Bank_Teller(threading.Thread):
     def __init__(self):
@@ -315,11 +341,11 @@ class Stock_Trading_System(threading.Thread):
     def __init__(self):
         pass
 
-    def buy_stock(self):
-        pass
+    def buy_stock(self,mess,signature,pubkey):
+        return rsa.verify(mess.encode(), signature, pubkey)
 
-    def sell_stock(self):
-        pass
+    def sell_stock(self,mess,signature,pubkey):
+        return rsa.verify(mess.encode(), signature, pubkey)
 
 
 if __name__ == "__main__":
