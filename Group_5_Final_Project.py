@@ -148,8 +148,7 @@ class Customer(threading.Thread):
         else:
             pass
 
-
-    def buy_stock(self, userId):
+    def buy_stock(self, userId, stock_contract, signature):
         cursor.execute("SELECT * FROM Bank_Account WHERE UserId = ?", (userId,))
         bankInfo = cursor.fetchone()
         print("User balance: $", bankInfo[1])
@@ -162,16 +161,19 @@ class Customer(threading.Thread):
         total_stock_price = stock_quantiy * stock_unit_price
         userBalance = bankInfo[1]
         if total_stock_price <= userBalance:
-            stock_contract = stock_name + str(stock_quantiy) + str(stock_unit_price) + str(acc_num) + "B"
-            print(stock_contract)
-            # create digital signature of the
+
+            # check if user input is correct to create a stock contract
+            if stock_quantiy > 0 and stock_unit_price > 0:
+                stock_contract = stock_name + "/" + str(stock_quantiy) + "/" + str(stock_unit_price) + "/" + str(acc_num) + "/" + "B"
+                print(stock_contract)
+                # create digital signature of the
+
+            else:
+                print("Error entering purchase order into a contract")
+                quit(0)
         else:
             print("Insufficient fund")
             quit(0)
-
-
-
-
 
     def sell_stock(self):
         pass
