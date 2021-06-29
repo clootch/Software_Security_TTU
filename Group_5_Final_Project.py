@@ -174,6 +174,7 @@ class Customer(threading.Thread):
                 signature = rsa.sign(stock_contract.encode(), self.privkey, 'SHA-256')
                 if self.stock_system.buy_stock(stock_contract,signature,self.pubkey):
                     self.cursor.execute("INSERT INTO Stock_Transactions (userId,Stock_Name,Type,Amount,Unit_Price) VALUES (?,?,?,?,?)",(userId,stock_name,"BUY",stock_quantiy,stock_unit_price))
+                    connection.commit()
                 else:
                     print("Message Compromised.")
                     return
@@ -198,8 +199,8 @@ class Customer(threading.Thread):
             stock_contract = stock_name + "/" + str(stock_quantiy) + "/" + str(stock_unit_price) + "/" + str(acc_num) + "/" + "S"
             signature = rsa.sign(stock_contract.encode(), self.privkey, 'SHA-256')
             if self.stock_system.sell_stock(stock_contract,signature,self.pubkey):
-                self.cursor.execute("INSERT INTO Stock_Transactions (userId,Stock_Name,Type,Amount,Unit_Price) VALUES (?,?,?,?,?)",(userId,stock_name,"BUY",stock_quantiy,stock_unit_price))
-                
+                self.cursor.execute("INSERT OR IGNORE INTO Stock_Transactions (userId,Stock_Name,Type,Amount,Unit_Price) VALUES (?,?,?,?,?)",(userId,stock_name,"SELL",stock_quantiy,stock_unit_price))
+                connection.commit()
                 print("Stock sold.")
             else:
                 print("Message Compromised.")
@@ -368,23 +369,18 @@ if __name__ == "__main__":
         print("What would you like to do?")
         print("1. Login as Customer")
         print("2. login as Bank Teller")
-        print("3. Register Account")
-        print("4. Quit")
+        print("3. Quit")
         print("----------------------------------")
         choice = input("Enter a number choice here: ")
         if (choice == "1"):
             print("Customer Login")
             user = Customer()
             user.log_on()
-
-
         elif (choice == "2"):
             print("Bank Teller Login")
             user = Bank_Teller()
             user.log_on()
         elif (choice == "3"):
-            print("Register Account")
-        elif (choice == "4"):
             print("Closing system...")
             quit(0)
         else:
