@@ -361,8 +361,8 @@ if __name__ == "__main__":
     connection = sqlite3.connect("Customer_Teller_loginInfo.db")
     cursor = connection.cursor()
     cursor.execute("SELECT * FROM users")
-    print(cursor.fetchall())
-    print(type(cursor.fetchall()))
+    #print(cursor.fetchall())
+    #print(type(cursor.fetchall()))
 
     while True:
         print("----------------------------------")
